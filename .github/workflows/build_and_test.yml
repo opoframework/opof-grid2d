@@ -1,0 +1,76 @@
+name: Build and Test
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - 'master'
+
+  pull_request:
+    branches:
+      - 'master'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build OPOF wheel.
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Python dependencies
+        run: pip install build
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: opof-grid2d
+          path: dist/*.whl
+  
+  test:
+    needs: build
+    name: Test opof-grid2d on ${{ matrix.os }} with Python ${{ matrix.python-version }}.
+    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: opof-grid2d
+          path: dist
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install OPOF
+        run: pip install opof
+
+      - name: Install package
+        run: pip install dist/*.whl
+
+      - name: Install test dependencies
+        run: pip install pytest pytest-timeout
+
+      - name: Run tests
+        run: pytest -v
