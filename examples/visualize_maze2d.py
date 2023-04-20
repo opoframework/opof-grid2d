@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from opof_grid2d.domains import Maze2D
 
-SIZE = 11
+SIZE = 51
 
 
 def to_display(x):
@@ -53,9 +53,8 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
-    board[start] = 1  # Don't draw heuristics on start.
-    board[goal] = 1  # Don't draw heuristics on goal.
-    board = (board * 2) + 0.85 * (1 - f_values) * (1 - board)
+    board = 1 - board  # Selects free space.
+    board = board * (1 + (1 - f_values))  # Applies gradient to free space.
     board[start] = 3
     board[goal] = 4
     ax.pcolormesh(
@@ -63,7 +62,7 @@ if __name__ == "__main__":
         np.arange(0, SIZE),
         to_display(board),
         cmap=LinearSegmentedColormap.from_list(
-            "", ["white", "#FF0000", "silver", "lime", "fuchsia"]
+            "", ["#E0E0E0", "white", "#FF0000", "#0FF00", "#0000FF"]
         ),
     )
     ax.set_xticks([])
