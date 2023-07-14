@@ -11,7 +11,7 @@
 $ pip install opof-grid2d
 ```
 
-`opof-grid2d` is officially tested and supported for Python 3.9, 3.10, 3.11.
+`opof-grid2d` is officially tested and supported for Python 3.9, 3.10.
 
 ## Domain: `RandomWalk2D[size]`
 <p align="left">
